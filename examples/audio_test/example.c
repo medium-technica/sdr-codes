@@ -7,6 +7,7 @@ http://www.nd.edu/~dthain/courses/cse20211/fall2013/wavfile
 Go ahead and modify this program for your own purposes.
 */
 
+#define __USE_MISC 1
 
 #include <stdio.h>
 #include <math.h>
@@ -17,33 +18,35 @@ Go ahead and modify this program for your own purposes.
 
 #include "wavfile.c"
 
-const int NUM_SAMPLES = (WAVFILE_SAMPLES_PER_SECOND*2);
+const int NUM_SAMPLES = (WAVFILE_SAMPLES_PER_SECOND * 2);
 
 int main()
 {
-	short waveform[NUM_SAMPLES];
-	double frequency = 880.0;
-	int volume = 8000;
-	int length = NUM_SAMPLES;
-	char fname[] = "sound.wav";
-	char command[18] = "aplay ";
+ short waveform[NUM_SAMPLES];
+ double frequency = 880.0;
+ int volume = 8000;
+ int length = NUM_SAMPLES;
+ char fname[] = "sound.wav";
+ char command[18] = "aplay ";
 
-	int i;
-	for(i=0;i<length;i++) {
-		double t = (double) i / WAVFILE_SAMPLES_PER_SECOND;
-		waveform[i] = volume*sin(frequency*t*2*M_PI);
-	}
-	
-	FILE * f = wavfile_open(fname);
-	if(!f) {
-		printf("couldn't open sound.wav for writing: %s",strerror(errno));
-		return 1;
-	}
+ int i;
+ for (i = 0; i < length; i++)
+ {
+  double t = (double)i / WAVFILE_SAMPLES_PER_SECOND;
+  waveform[i] = volume * sin(frequency * t * 2 * M_PI);
+ }
 
-	wavfile_write(f,waveform,length);
-	wavfile_close(f);
-	strcat(command, fname);
-	system(command);
+ FILE *f = wavfile_open(fname);
+ if (!f)
+ {
+  printf("couldn't open sound.wav for writing: %s", strerror(errno));
+  return 1;
+ }
 
-	return 0;
+ wavfile_write(f, waveform, length);
+ wavfile_close(f);
+ strcat(command, fname);
+ system(command);
+
+ return 0;
 }

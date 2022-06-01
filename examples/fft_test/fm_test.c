@@ -22,8 +22,8 @@ Example Command to Execute this code (linking is required when fftw3 library is 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../include/fft_ab.h"
-#include "../include/fftw3.h"
+#include "../../include/fft_ab.h"
+#include "../../include/fftw3.h"
 
 #define FFTW 0 // 0 for fft_ab, 1 for FFTW3
 
