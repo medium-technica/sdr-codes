@@ -176,7 +176,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
                 firdes.WIN_HAMMING,
                 6.76))
         self.blocks_interleaved_short_to_complex_0 = blocks.interleaved_short_to_complex(False, False)
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_short*1, '/home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k', False, 0, 0)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_short*1, '/home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k.hex', False, 0, 0)
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
         self.audio_sink_0 = audio.sink(int(samp_rate), '', True)
         self.analog_wfm_rcv_0 = analog.wfm_rcv(

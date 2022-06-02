@@ -97,7 +97,7 @@ blocks:
     alias: ''
     begin_tag: pmt.PMT_NIL
     comment: ''
-    file: /home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k
+    file: /home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k.hex
     length: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
