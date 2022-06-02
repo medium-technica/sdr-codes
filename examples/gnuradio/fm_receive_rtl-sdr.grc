@@ -78,7 +78,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 250e3
+    value: 2.4e6
   states:
     bus_sink: false
     bus_source: false
@@ -90,7 +90,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 25e3
+    value: 48e3
   states:
     bus_sink: false
     bus_source: false
@@ -112,7 +112,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [474, 190]
+    coordinate: [643, 141]
     rotation: 0
     state: true
 - name: audio_sink_0
@@ -129,7 +129,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1032, 132.0]
+    coordinate: [1100, 95]
     rotation: 0
     state: true
 - name: blocks_complex_to_interleaved_short_0
@@ -145,7 +145,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [565, 436]
+    coordinate: [606, 504]
     rotation: 0
     state: true
 - name: blocks_file_sink_0
@@ -163,7 +163,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [476, 260]
+    coordinate: [409, 394]
     rotation: 0
     state: true
 - name: blocks_file_sink_0_0
@@ -173,7 +173,7 @@ blocks:
     alias: ''
     append: 'False'
     comment: ''
-    file: /home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_250k_25k
+    file: /home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k
     type: short
     unbuffered: 'False'
     vlen: '1'
@@ -181,7 +181,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [807, 409]
+    coordinate: [852, 488]
     rotation: 0
     state: true
 - name: blocks_multiply_const_vxx_0
@@ -199,7 +199,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [374, 366]
+    coordinate: [398, 504]
     rotation: 0
     state: true
 - name: low_pass_filter_0
@@ -223,104 +223,31 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [713, 127]
+    coordinate: [870, 49]
     rotation: 0
     state: true
-- name: qtgui_time_sink_x_0
-  id: qtgui_time_sink_x
+- name: low_pass_filter_1
+  id: low_pass_filter
   parameters:
     affinity: ''
     alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    axislabels: 'True'
-    color1: blue
-    color10: dark blue
-    color2: red
-    color3: green
-    color4: black
-    color5: cyan
-    color6: magenta
-    color7: yellow
-    color8: dark red
-    color9: dark green
+    beta: '6.76'
     comment: ''
-    ctrlpanel: 'False'
-    entags: 'True'
-    grid: 'False'
-    gui_hint: ''
-    label1: Signal 1
-    label10: Signal 10
-    label2: Signal 2
-    label3: Signal 3
-    label4: Signal 4
-    label5: Signal 5
-    label6: Signal 6
-    label7: Signal 7
-    label8: Signal 8
-    label9: Signal 9
-    legend: 'True'
-    marker1: '-1'
-    marker10: '-1'
-    marker2: '-1'
-    marker3: '-1'
-    marker4: '-1'
-    marker5: '-1'
-    marker6: '-1'
-    marker7: '-1'
-    marker8: '-1'
-    marker9: '-1'
-    name: '""'
-    nconnections: '1'
-    size: '1024'
-    srate: samp_rate
-    stemplot: 'False'
-    style1: '1'
-    style10: '1'
-    style2: '1'
-    style3: '1'
-    style4: '1'
-    style5: '1'
-    style6: '1'
-    style7: '1'
-    style8: '1'
-    style9: '1'
-    tr_chan: '0'
-    tr_delay: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_slope: qtgui.TRIG_SLOPE_POS
-    tr_tag: '""'
-    type: float
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    ylabel: Amplitude
-    ymax: '1'
-    ymin: '-1'
-    yunit: '""'
+    cutoff_freq: 200e3
+    decim: '1'
+    gain: '1'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: quad_rate
+    type: fir_filter_ccf
+    width: 10e3
+    win: firdes.WIN_BLACKMAN
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1032, 180.0]
+    coordinate: [414, 144]
     rotation: 0
     state: true
 - name: qtgui_waterfall_sink_x_0
@@ -339,7 +266,7 @@ blocks:
     alpha8: '1.0'
     alpha9: '1.0'
     axislabels: 'True'
-    bw: samp_rate
+    bw: quad_rate
     color1: '0'
     color10: '0'
     color2: '0'
@@ -374,14 +301,75 @@ blocks:
     name: '""'
     nconnections: '1'
     showports: 'False'
-    type: float
+    type: complex
     update_time: '0.10'
     wintype: firdes.WIN_BLACKMAN
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [714, 301]
+    coordinate: [412, 287]
+    rotation: 0
+    state: true
+- name: qtgui_waterfall_sink_x_0_0
+  id: qtgui_waterfall_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    axislabels: 'True'
+    bw: quad_rate
+    color1: '0'
+    color10: '0'
+    color2: '0'
+    color3: '0'
+    color4: '0'
+    color5: '0'
+    color6: '0'
+    color7: '0'
+    color8: '0'
+    color9: '0'
+    comment: ''
+    fc: '0'
+    fftsize: '1024'
+    freqhalf: 'True'
+    grid: 'False'
+    gui_hint: ''
+    int_max: '10'
+    int_min: '-140'
+    label1: ''
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '""'
+    nconnections: '1'
+    showports: 'False'
+    type: complex
+    update_time: '0.10'
+    wintype: firdes.WIN_BLACKMAN
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [654, 289]
     rotation: 0
     state: true
 - name: rtlsdr_source_0
@@ -744,14 +732,15 @@ blocks:
 
 connections:
 - [analog_wfm_rcv_0, '0', low_pass_filter_0, '0']
-- [analog_wfm_rcv_0, '0', qtgui_waterfall_sink_x_0, '0']
 - [blocks_complex_to_interleaved_short_0, '0', blocks_file_sink_0_0, '0']
 - [blocks_multiply_const_vxx_0, '0', blocks_complex_to_interleaved_short_0, '0']
 - [low_pass_filter_0, '0', audio_sink_0, '0']
-- [low_pass_filter_0, '0', qtgui_time_sink_x_0, '0']
-- [rtlsdr_source_0, '0', analog_wfm_rcv_0, '0']
+- [low_pass_filter_1, '0', analog_wfm_rcv_0, '0']
+- [low_pass_filter_1, '0', qtgui_waterfall_sink_x_0_0, '0']
 - [rtlsdr_source_0, '0', blocks_file_sink_0, '0']
 - [rtlsdr_source_0, '0', blocks_multiply_const_vxx_0, '0']
+- [rtlsdr_source_0, '0', low_pass_filter_1, '0']
+- [rtlsdr_source_0, '0', qtgui_waterfall_sink_x_0, '0']
 
 metadata:
   file_format: 1

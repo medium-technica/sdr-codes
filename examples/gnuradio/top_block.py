@@ -26,7 +26,6 @@ from gnuradio.filter import firdes
 import sip
 from gnuradio import analog
 from gnuradio import audio
-from gnuradio import blocks
 from gnuradio import filter
 from gnuradio import gr
 import sys
@@ -75,23 +74,23 @@ class top_block(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.volume = volume = 0.5
-        self.transition = transition = 1e6
         self.samp_rate = samp_rate = 2.56e6
-        self.quadrature = quadrature = 500e3
-        self.cutoff = cutoff = 100e3
+        self.volume = volume = 0.5
+        self.transition = transition = 10e3
+        self.quadrature = quadrature = int(samp_rate/5)
+        self.cutoff = cutoff = 200e3
         self.audio_dec = audio_dec = 10
         self.FM_Frequency = FM_Frequency = 91.9e6
 
         ##################################################
         # Blocks
         ##################################################
-        self._volume_range = Range(0, 1, 0.1, 0.5, 200)
-        self._volume_win = RangeWidget(self._volume_range, self.set_volume, 'volume', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._volume_win)
         self._FM_Frequency_range = Range(88e6, 108e6, 100e3, 91.9e6, 200)
         self._FM_Frequency_win = RangeWidget(self._FM_Frequency_range, self.set_FM_Frequency, 'FM_Frequency', "counter_slider", float)
         self.top_grid_layout.addWidget(self._FM_Frequency_win)
+        self._volume_range = Range(0, 1, 0.1, 0.5, 200)
+        self._volume_win = RangeWidget(self._volume_range, self.set_volume, 'volume', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._volume_win)
         self.rtlsdr_source_0 = osmosdr.source(
             args="numchan=" + str(1) + " " + ""
         )
@@ -104,16 +103,6 @@ class top_block(gr.top_block, Qt.QWidget):
         self.rtlsdr_source_0.set_bb_gain(20, 0)
         self.rtlsdr_source_0.set_antenna('', 0)
         self.rtlsdr_source_0.set_bandwidth(0, 0)
-        self.rational_resampler_xxx_1 = filter.rational_resampler_ccc(
-                interpolation=1,
-                decimation=int(samp_rate/quadrature),
-                taps=None,
-                fractional_bw=None)
-        self.rational_resampler_xxx_0 = filter.rational_resampler_fff(
-                interpolation=48,
-                decimation=int(quadrature/1e3/audio_dec),
-                taps=None,
-                fractional_bw=None)
         self.qtgui_waterfall_sink_x_0_0 = qtgui.waterfall_sink_c(
             1024, #size
             firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -189,11 +178,10 @@ class top_block(gr.top_block, Qt.QWidget):
                 transition,
                 firdes.WIN_HAMMING,
                 6.76))
-        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(volume)
         self.audio_sink_0 = audio.sink(48000, '', True)
         self.analog_wfm_rcv_0 = analog.wfm_rcv(
-        	quad_rate=quadrature,
-        	audio_decimation=audio_dec,
+        	quad_rate=samp_rate,
+        	audio_decimation=5,
         )
 
 
@@ -201,26 +189,33 @@ class top_block(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_wfm_rcv_0, 0), (self.rational_resampler_xxx_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.analog_wfm_rcv_0, 0), (self.audio_sink_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.analog_wfm_rcv_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
-        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.rational_resampler_xxx_1, 0), (self.low_pass_filter_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
-        self.connect((self.rtlsdr_source_0, 0), (self.rational_resampler_xxx_1, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "top_block")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
+    def get_samp_rate(self):
+        return self.samp_rate
+
+    def set_samp_rate(self, samp_rate):
+        self.samp_rate = samp_rate
+        self.set_quadrature(int(self.samp_rate/5))
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, self.cutoff, self.transition, firdes.WIN_HAMMING, 6.76))
+        self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate)
+        self.qtgui_waterfall_sink_x_0_0.set_frequency_range(0, self.samp_rate)
+        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
+
     def get_volume(self):
         return self.volume
 
     def set_volume(self, volume):
         self.volume = volume
-        self.blocks_multiply_const_vxx_0.set_k(self.volume)
 
     def get_transition(self):
         return self.transition
@@ -228,16 +223,6 @@ class top_block(gr.top_block, Qt.QWidget):
     def set_transition(self, transition):
         self.transition = transition
         self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, self.cutoff, self.transition, firdes.WIN_HAMMING, 6.76))
-
-    def get_samp_rate(self):
-        return self.samp_rate
-
-    def set_samp_rate(self, samp_rate):
-        self.samp_rate = samp_rate
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, self.cutoff, self.transition, firdes.WIN_HAMMING, 6.76))
-        self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate)
-        self.qtgui_waterfall_sink_x_0_0.set_frequency_range(0, self.samp_rate)
-        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
 
     def get_quadrature(self):
         return self.quadrature
