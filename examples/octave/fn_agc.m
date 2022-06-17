@@ -1,8 +1,11 @@
-function y = fn_agc(x, fs)
-  n_frame = ceil(fs/5);
-  for i = 1:length(x)-n_frame
-    y(i) = x(i) ./ max(x(i:i+n_frame));
+function y = fn_agc(x, n_frame)
+  l = length(x)
+  ln_diff = length(x)-n_frame;
+  for i = 1:n_frame:ln_diff
+    x_t = x(i:i+n_frame);
+    y(i:i+n_frame) = x_t ./ max(abs(x_t)) - mean(x_t);
   endfor
-  y((length(x)-n_frame):length(x)) = x((length(x)-n_frame):length(x))./max((length(x)-n_frame):length(x));
+  x_t = x(ln_diff:end);
+  y(ln_diff:l) = x_t./max(abs(x_t)) - mean(x_t);
 end
 
