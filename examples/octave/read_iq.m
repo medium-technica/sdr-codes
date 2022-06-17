@@ -5,11 +5,11 @@ flag = 1;
 if flag
   rate_sampling = 2.4e6;
   rate_audio = 48e3;
-  filename = "/home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k.iq";
+  filename = "../../include/wbfm_raw_iq_2.4M_48k.iq";
 else
   rate_sampling = 2.4e6;
   rate_audio = 48e3;
-  filename = "/home/abraham/github/medium-technica/sdr-codes/include/speech48000-nbfm2400000.iq";
+  filename = "../../include/speech48000-nbfm2400000.iq";
 end
 bw = 1.5*rate_audio;
 decimation = floor(rate_sampling/rate_audio)
