@@ -11,7 +11,7 @@ else
   rate_audio = 48e3;
   filename = "../../include/speech48000-nbfm2400000.iq";
 end
-bw = 1.5*rate_audio;
+bw = 3*rate_audio;
 decimation = floor(rate_sampling/rate_audio)
 fid = fopen (filename, "r");
 val = fread(fid,"int16");
@@ -20,28 +20,49 @@ x_i = val([1:2:end]);
 x_q = val([2:2:end]);
 xc = x_i + x_q*i;
 axis_f = linspace(0, rate_sampling, length(xc));
-subplot(411)
-plot(abs(fft(xc)));
-xc_base = fn_bpf(xc, bw, floor(rate_sampling/2), rate_sampling);
-xc_down = xc_base([1:decimation/10:end]);
-subplot(412)
-plot(abs(fft(xc_down)))
-phi = arg(xc_down);
+subplot(711)
+plot(abs(fftshift(fft(xc))));
+title("Spectrum of RAW IQ");
+
+xc_down = xc([1:decimation/25:end]);
+
+subplot(712)
+plot(abs(fftshift(fft(xc_down))));
+title(sprintf ("Spectrum after first stage Decimation by %d samples", 25));
+
+xc_base = fn_bpf(xc_down, bw/25, floor(rate_sampling/(25*2)), rate_sampling/25);
+subplot(713)
+plot(abs(fftshift(fft(xc_base))));
+title("Spectrum after LPF");
+
+phi = arg(xc_base);
 phi_last = [phi(2:end);0];
 dphi = phi - phi_last;
-dphi_o = dphi([1:decimation/5:end]);
+subplot(714);
+plot(dphi);
+title("Demodulated Signal (Phase values)");
+
+dphi_o = dphi([1:decimation/2:end]);
+subplot(715)
+plot(dphi_o)
+title("Phase values after second stage of decimation by 2 samples");
+
 while (min(dphi_o) < -pi)
   dphi_o = dphi_o + (dphi_o < -pi) .* 2*pi;
 end
 while (max(dphi_o) > pi)
   dphi_o = dphi_o - (dphi_o > pi) .* 2*pi;
 end
-subplot(413)
+subplot(716)
 plot(dphi_o)
+title("Phase Values corrected to within +/- pi");
+
 x_demod = dphi_o-mean(dphi_o);
-x_demod = fn_agc(x_demod, rate_audio);
+x_demod = fn_agc(x_demod, rate_audio/2);
 player = audioplayer(x_demod, rate_audio);
 play (player);
-subplot(414)
+subplot(717)
 plot(0.5*x_demod)
+title("Phase values after Gain Adjustment");
+length(x_demod) / rate_audio
 
