@@ -56,6 +56,23 @@ blocks:
     coordinate: [184, 12]
     rotation: 0
     state: enabled
+- name: variable_low_pass_filter_taps_0
+  id: variable_low_pass_filter_taps
+  parameters:
+    beta: '6.76'
+    comment: ''
+    cutoff_freq: ''
+    gain: '1.0'
+    samp_rate: samp_rate
+    width: ''
+    win: firdes.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [835, 283]
+    rotation: 0
+    state: true
 - name: analog_wfm_rcv_0
   id: analog_wfm_rcv
   parameters:
@@ -87,7 +104,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1004, 57]
+    coordinate: [1003, 57]
     rotation: 0
     state: true
 - name: blocks_file_source_0
@@ -127,6 +144,26 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [313, 141]
+    rotation: 0
+    state: true
+- name: freq_xlating_fir_filter_xxx_0
+  id: freq_xlating_fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    center_freq: '0'
+    comment: ''
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    taps: ''
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [191, 281]
     rotation: 0
     state: true
 - name: low_pass_filter_0

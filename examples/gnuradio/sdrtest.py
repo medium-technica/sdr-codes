@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: FM Demodulation from Interlieved RAW IQ Samples
+# Title: Not titled yet
 # GNU Radio version: 3.8.1.0
 
 from distutils.version import StrictVersion
@@ -27,7 +27,6 @@ import sip
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
-import pmt
 from gnuradio import filter
 from gnuradio import gr
 import sys
@@ -35,14 +34,17 @@ import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
+from gnuradio.qtgui import Range, RangeWidget
+import osmosdr
+import time
 from gnuradio import qtgui
 
 class sdrtest(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "FM Demodulation from Interlieved RAW IQ Samples")
+        gr.top_block.__init__(self, "Not titled yet")
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("FM Demodulation from Interlieved RAW IQ Samples")
+        self.setWindowTitle("Not titled yet")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -75,109 +77,187 @@ class sdrtest(gr.top_block, Qt.QWidget):
         ##################################################
         self.samp_rate = samp_rate = 48e3
         self.quad_rate = quad_rate = 2.4e6
+        self.fm_freq = fm_freq = 91.9e6
+        self.cut_off = cut_off = samp_rate/4
 
         ##################################################
         # Blocks
         ##################################################
-        self.qtgui_time_sink_x_0 = qtgui.time_sink_f(
+        self._fm_freq_range = Range(88e6, 108e6, 100e3, 91.9e6, 200)
+        self._fm_freq_win = RangeWidget(self._fm_freq_range, self.set_fm_freq, 'FM Channel Frequency', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._fm_freq_win)
+        self._cut_off_range = Range(1e3, samp_rate/2, 1e3, samp_rate/4, 200)
+        self._cut_off_win = RangeWidget(self._cut_off_range, self.set_cut_off, 'Audio Filter Cut-Off Frequency', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._cut_off_win)
+        self.rtlsdr_source_0 = osmosdr.source(
+            args="numchan=" + str(1) + " " + ''
+        )
+        self.rtlsdr_source_0.set_sample_rate(quad_rate)
+        self.rtlsdr_source_0.set_center_freq(fm_freq, 0)
+        self.rtlsdr_source_0.set_freq_corr(0, 0)
+        self.rtlsdr_source_0.set_gain(10, 0)
+        self.rtlsdr_source_0.set_if_gain(20, 0)
+        self.rtlsdr_source_0.set_bb_gain(20, 0)
+        self.rtlsdr_source_0.set_antenna('', 0)
+        self.rtlsdr_source_0.set_bandwidth(200e3, 0)
+        self.qtgui_waterfall_sink_x_0_0_0_0 = qtgui.waterfall_sink_f(
             1024, #size
-            samp_rate, #samp_rate
+            firdes.WIN_BLACKMAN, #wintype
+            0, #fc
+            quad_rate, #bw
             "", #name
             1 #number of inputs
         )
-        self.qtgui_time_sink_x_0.set_update_time(0.10)
-        self.qtgui_time_sink_x_0.set_y_axis(-1, 1)
-
-        self.qtgui_time_sink_x_0.set_y_label('Amplitude', "")
-
-        self.qtgui_time_sink_x_0.enable_tags(True)
-        self.qtgui_time_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_0.enable_autoscale(False)
-        self.qtgui_time_sink_x_0.enable_grid(False)
-        self.qtgui_time_sink_x_0.enable_axis_labels(True)
-        self.qtgui_time_sink_x_0.enable_control_panel(False)
-        self.qtgui_time_sink_x_0.enable_stem_plot(False)
+        self.qtgui_waterfall_sink_x_0_0_0_0.set_update_time(0.10)
+        self.qtgui_waterfall_sink_x_0_0_0_0.enable_grid(False)
+        self.qtgui_waterfall_sink_x_0_0_0_0.enable_axis_labels(True)
 
 
-        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
-            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ['blue', 'red', 'green', 'black', 'cyan',
-            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        self.qtgui_waterfall_sink_x_0_0_0_0.set_plot_pos_half(not True)
+
+        labels = ['', '', '', '', '',
+                  '', '', '', '', '']
+        colors = [0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
-        styles = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        markers = [-1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1]
-
+                  1.0, 1.0, 1.0, 1.0, 1.0]
 
         for i in range(1):
             if len(labels[i]) == 0:
-                self.qtgui_time_sink_x_0.set_line_label(i, "Data {0}".format(i))
+                self.qtgui_waterfall_sink_x_0_0_0_0.set_line_label(i, "Data {0}".format(i))
             else:
-                self.qtgui_time_sink_x_0.set_line_label(i, labels[i])
-            self.qtgui_time_sink_x_0.set_line_width(i, widths[i])
-            self.qtgui_time_sink_x_0.set_line_color(i, colors[i])
-            self.qtgui_time_sink_x_0.set_line_style(i, styles[i])
-            self.qtgui_time_sink_x_0.set_line_marker(i, markers[i])
-            self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
+                self.qtgui_waterfall_sink_x_0_0_0_0.set_line_label(i, labels[i])
+            self.qtgui_waterfall_sink_x_0_0_0_0.set_color_map(i, colors[i])
+            self.qtgui_waterfall_sink_x_0_0_0_0.set_line_alpha(i, alphas[i])
 
-        self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_win)
-        self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
+        self.qtgui_waterfall_sink_x_0_0_0_0.set_intensity_range(-140, 10)
+
+        self._qtgui_waterfall_sink_x_0_0_0_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0_0_0_0.pyqwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_waterfall_sink_x_0_0_0_0_win)
+        self.qtgui_waterfall_sink_x_0_0_0 = qtgui.waterfall_sink_f(
             1024, #size
-            firdes.WIN_BLACKMAN_hARRIS, #wintype
+            firdes.WIN_BLACKMAN, #wintype
             0, #fc
-            samp_rate*10, #bw
+            quad_rate, #bw
             "", #name
-            1
+            1 #number of inputs
         )
-        self.qtgui_freq_sink_x_0.set_update_time(0.05)
-        self.qtgui_freq_sink_x_0.set_y_axis(0, 100)
-        self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
-        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
-        self.qtgui_freq_sink_x_0.enable_autoscale(False)
-        self.qtgui_freq_sink_x_0.enable_grid(False)
-        self.qtgui_freq_sink_x_0.set_fft_average(1.0)
-        self.qtgui_freq_sink_x_0.enable_axis_labels(True)
-        self.qtgui_freq_sink_x_0.enable_control_panel(False)
+        self.qtgui_waterfall_sink_x_0_0_0.set_update_time(0.10)
+        self.qtgui_waterfall_sink_x_0_0_0.enable_grid(False)
+        self.qtgui_waterfall_sink_x_0_0_0.enable_axis_labels(True)
+
+
+        self.qtgui_waterfall_sink_x_0_0_0.set_plot_pos_half(not True)
+
+        labels = ['', '', '', '', '',
+                  '', '', '', '', '']
+        colors = [0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_waterfall_sink_x_0_0_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_waterfall_sink_x_0_0_0.set_line_label(i, labels[i])
+            self.qtgui_waterfall_sink_x_0_0_0.set_color_map(i, colors[i])
+            self.qtgui_waterfall_sink_x_0_0_0.set_line_alpha(i, alphas[i])
+
+        self.qtgui_waterfall_sink_x_0_0_0.set_intensity_range(-140, 10)
+
+        self._qtgui_waterfall_sink_x_0_0_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0_0_0.pyqwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_waterfall_sink_x_0_0_0_win)
+        self.qtgui_waterfall_sink_x_0_0 = qtgui.waterfall_sink_c(
+            1024, #size
+            firdes.WIN_BLACKMAN, #wintype
+            0, #fc
+            quad_rate, #bw
+            "", #name
+            1 #number of inputs
+        )
+        self.qtgui_waterfall_sink_x_0_0.set_update_time(0.10)
+        self.qtgui_waterfall_sink_x_0_0.enable_grid(False)
+        self.qtgui_waterfall_sink_x_0_0.enable_axis_labels(True)
 
 
 
         labels = ['', '', '', '', '',
-            '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-            "magenta", "yellow", "dark red", "dark green", "dark blue"]
+                  '', '', '', '', '']
+        colors = [0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
+                  1.0, 1.0, 1.0, 1.0, 1.0]
 
         for i in range(1):
             if len(labels[i]) == 0:
-                self.qtgui_freq_sink_x_0.set_line_label(i, "Data {0}".format(i))
+                self.qtgui_waterfall_sink_x_0_0.set_line_label(i, "Data {0}".format(i))
             else:
-                self.qtgui_freq_sink_x_0.set_line_label(i, labels[i])
-            self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
-            self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
-            self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
+                self.qtgui_waterfall_sink_x_0_0.set_line_label(i, labels[i])
+            self.qtgui_waterfall_sink_x_0_0.set_color_map(i, colors[i])
+            self.qtgui_waterfall_sink_x_0_0.set_line_alpha(i, alphas[i])
 
-        self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.low_pass_filter_0 = filter.fir_filter_ccf(
+        self.qtgui_waterfall_sink_x_0_0.set_intensity_range(-140, 10)
+
+        self._qtgui_waterfall_sink_x_0_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0_0.pyqwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_waterfall_sink_x_0_0_win)
+        self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
+            1024, #size
+            firdes.WIN_BLACKMAN, #wintype
+            0, #fc
+            quad_rate, #bw
+            "", #name
+            1 #number of inputs
+        )
+        self.qtgui_waterfall_sink_x_0.set_update_time(0.10)
+        self.qtgui_waterfall_sink_x_0.enable_grid(False)
+        self.qtgui_waterfall_sink_x_0.enable_axis_labels(True)
+
+
+
+        labels = ['', '', '', '', '',
+                  '', '', '', '', '']
+        colors = [0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_waterfall_sink_x_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_waterfall_sink_x_0.set_line_label(i, labels[i])
+            self.qtgui_waterfall_sink_x_0.set_color_map(i, colors[i])
+            self.qtgui_waterfall_sink_x_0.set_line_alpha(i, alphas[i])
+
+        self.qtgui_waterfall_sink_x_0.set_intensity_range(-140, 10)
+
+        self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_waterfall_sink_x_0_win)
+        self.low_pass_filter_1 = filter.fir_filter_ccf(
             1,
             firdes.low_pass(
                 1,
                 quad_rate,
                 200e3,
                 10e3,
+                firdes.WIN_BLACKMAN,
+                6.76))
+        self.low_pass_filter_0 = filter.fir_filter_fff(
+            1,
+            firdes.low_pass(
+                1,
+                samp_rate,
+                cut_off,
+                cut_off/2,
                 firdes.WIN_HAMMING,
                 6.76))
-        self.blocks_interleaved_short_to_complex_0 = blocks.interleaved_short_to_complex(False, False)
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_short*1, '/home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k.hex', False, 0, 0)
-        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(32768)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_short*1, '/home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k.hex', False)
+        self.blocks_file_sink_0_0.set_unbuffered(False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/abraham/github/medium-technica/sdr-codes/include/fm_radio_raw_complex.hex', False)
+        self.blocks_file_sink_0.set_unbuffered(False)
+        self.blocks_complex_to_interleaved_short_0 = blocks.complex_to_interleaved_short(False)
         self.audio_sink_0 = audio.sink(int(samp_rate), '', True)
         self.analog_wfm_rcv_0 = analog.wfm_rcv(
         	quad_rate=quad_rate,
@@ -189,12 +269,18 @@ class sdrtest(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_wfm_rcv_0, 0), (self.audio_sink_0, 0))
-        self.connect((self.analog_wfm_rcv_0, 0), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.blocks_file_source_0, 0), (self.blocks_interleaved_short_to_complex_0, 0))
-        self.connect((self.blocks_interleaved_short_to_complex_0, 0), (self.low_pass_filter_0, 0))
-        self.connect((self.blocks_interleaved_short_to_complex_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.analog_wfm_rcv_0, 0))
+        self.connect((self.analog_wfm_rcv_0, 0), (self.low_pass_filter_0, 0))
+        self.connect((self.analog_wfm_rcv_0, 0), (self.qtgui_waterfall_sink_x_0_0_0, 0))
+        self.connect((self.blocks_complex_to_interleaved_short_0, 0), (self.blocks_file_sink_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_complex_to_interleaved_short_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.qtgui_waterfall_sink_x_0_0_0_0, 0))
+        self.connect((self.low_pass_filter_1, 0), (self.analog_wfm_rcv_0, 0))
+        self.connect((self.low_pass_filter_1, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.low_pass_filter_1, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "sdrtest")
@@ -206,15 +292,34 @@ class sdrtest(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate*10)
-        self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
+        self.set_cut_off(self.samp_rate/4)
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, self.cut_off, self.cut_off/2, firdes.WIN_HAMMING, 6.76))
 
     def get_quad_rate(self):
         return self.quad_rate
 
     def set_quad_rate(self, quad_rate):
         self.quad_rate = quad_rate
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.quad_rate, 200e3, 10e3, firdes.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1.set_taps(firdes.low_pass(1, self.quad_rate, 200e3, 10e3, firdes.WIN_BLACKMAN, 6.76))
+        self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.quad_rate)
+        self.qtgui_waterfall_sink_x_0_0.set_frequency_range(0, self.quad_rate)
+        self.qtgui_waterfall_sink_x_0_0_0.set_frequency_range(0, self.quad_rate)
+        self.qtgui_waterfall_sink_x_0_0_0_0.set_frequency_range(0, self.quad_rate)
+        self.rtlsdr_source_0.set_sample_rate(self.quad_rate)
+
+    def get_fm_freq(self):
+        return self.fm_freq
+
+    def set_fm_freq(self, fm_freq):
+        self.fm_freq = fm_freq
+        self.rtlsdr_source_0.set_center_freq(self.fm_freq, 0)
+
+    def get_cut_off(self):
+        return self.cut_off
+
+    def set_cut_off(self, cut_off):
+        self.cut_off = cut_off
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, self.cut_off, self.cut_off/2, firdes.WIN_HAMMING, 6.76))
 
 
 

@@ -2,6 +2,8 @@ clc;
 close all;
 clear all;
 
+pkg load communications
+
 ## Sampling Frequency
  fs = 1000;
 
