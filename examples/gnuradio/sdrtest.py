@@ -75,7 +75,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 48e3
+        self.samp_rate = samp_rate = 100e3
         self.quad_rate = quad_rate = 2.4e6
         self.fm_freq = fm_freq = 91.9e6
         self.cut_off = cut_off = samp_rate/4
@@ -253,7 +253,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
                 firdes.WIN_HAMMING,
                 6.76))
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(32768)
-        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_short*1, '/home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k.hex', False)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_short*1, '/home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_120k.iq', False)
         self.blocks_file_sink_0_0.set_unbuffered(False)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/abraham/github/medium-technica/sdr-codes/include/fm_radio_raw_complex.hex', False)
         self.blocks_file_sink_0.set_unbuffered(False)

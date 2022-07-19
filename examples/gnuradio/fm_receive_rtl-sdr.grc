@@ -90,7 +90,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 48e3
+    value: 100e3
   states:
     bus_sink: false
     bus_source: false
@@ -173,7 +173,7 @@ blocks:
     alias: ''
     append: 'False'
     comment: ''
-    file: /home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_48k.hex
+    file: /home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_120k.iq
     type: short
     unbuffered: 'False'
     vlen: '1'

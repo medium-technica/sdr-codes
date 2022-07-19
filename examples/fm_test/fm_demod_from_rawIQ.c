@@ -51,7 +51,7 @@ int processIq(FILE *fp, unsigned int N)
  {
   if ((fread(i + n, sizeof(short), 1, fp) == 1) && (fread(q + n, sizeof(short), 1, fp) == 1))
   {
-   printf("%d: %d\t%di\n", n, i[n], q[n]);
+   //printf("%d: %d\t%di\n", n, i[n], q[n]);
   }
   else
   {

@@ -4,17 +4,17 @@ clear all;
 flag = 1;
 if flag
   rate_sampling = 2.4e6;
-  rate_audio = 48e3;
-  filename = "../../include/wbfm_raw_iq_2.4M_48k.iq";
+  rate_audio = 120e3;
+  filename = "../../include/wbfm_raw_iq_2.4M_120k.iq";
 else
   rate_sampling = 2.4e6;
-  rate_audio = 48e3;
+  rate_audio = 120e3;
   filename = "../../include/speech48000-nbfm2400000.iq";
 end
 bw = 200e3;
 decimation = floor(rate_sampling/rate_audio)
 
-decimation_1 = decimation / 25;
+decimation_1 = decimation / 10;
 decimation_2 = decimation / 2;
 
 fid = fopen (filename, "r");
@@ -28,18 +28,18 @@ subplot(711)
 plot(axis_f, abs(fftshift(fft(xc))));
 title("Spectrum of RAW IQ");
 
-xc_down = xc([1:decimation_1:end]);
-axis_f = linspace(-rate_sampling/(decimation_1*2), rate_sampling/(decimation_1*2), length(xc_down));
+xc_base = fn_bpf(xc, bw, floor(rate_sampling/2), rate_sampling);
 subplot(712)
-plot(axis_f, abs(fftshift(fft(xc_down))));
-title(sprintf ("Spectrum after first stage Decimation by %d samples", decimation_1));
-
-xc_base = fn_bpf(xc_down, bw/decimation_1, floor(rate_sampling/(decimation_1*2)), rate_sampling/decimation_1);
-subplot(713)
 plot(axis_f,abs(fftshift(fft(xc_base))));
 title("Spectrum after LPF");
 
-phi = arg(xc_base);
+xc_down = xc_base([1:decimation_1:end]);
+axis_f = linspace(-rate_sampling/(decimation_1*2), rate_sampling/(decimation_1*2), length(xc_down));
+subplot(713)
+plot(axis_f, abs(fftshift(fft(xc_down))));
+title(sprintf ("Spectrum after first stage Decimation by %d samples", decimation_1));
+
+phi = arg(xc_down);
 phi_last = [phi(2:end);0];
 dphi = phi - phi_last;
 
