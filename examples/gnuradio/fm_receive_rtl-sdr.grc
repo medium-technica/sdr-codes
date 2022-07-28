@@ -173,7 +173,7 @@ blocks:
     alias: ''
     append: 'False'
     comment: ''
-    file: /home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_120k.iq
+    file: /home/abraham/github/medium-technica/sdr-codes/include/wbfm_raw_iq_2.4M_100k.iq
     type: short
     unbuffered: 'False'
     vlen: '1'

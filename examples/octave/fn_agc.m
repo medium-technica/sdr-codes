@@ -1,5 +1,5 @@
 function y = fn_agc(x, n_frame)
-  l = length(x)
+  l = length(x);
   ln_diff = length(x)-n_frame;
   for i = 1:n_frame:ln_diff
     x_t = x(i:i+n_frame);

@@ -4,18 +4,18 @@ clear all;
 flag = 1;
 if flag
   rate_sampling = 2.4e6;
-  rate_audio = 120e3;
-  filename = "../../include/wbfm_raw_iq_2.4M_120k.iq";
+  rate_audio = 100e3;
+  filename = "../../include/wbfm_raw_iq_2.4M_100k.iq";
 else
   rate_sampling = 2.4e6;
-  rate_audio = 120e3;
+  rate_audio = 100e3;
   filename = "../../include/speech48000-nbfm2400000.iq";
 end
 bw = 200e3;
 decimation = floor(rate_sampling/rate_audio)
 
-decimation_1 = decimation / 10;
-decimation_2 = decimation / 2;
+decimation_1 = decimation / 24;
+decimation_2 = decimation / 1;
 
 fid = fopen (filename, "r");
 val = fread(fid,"int16");
@@ -28,7 +28,7 @@ subplot(711)
 plot(axis_f, abs(fftshift(fft(xc))));
 title("Spectrum of RAW IQ");
 
-xc_base = fn_bpf(xc, bw, floor(rate_sampling/2), rate_sampling);
+xc_base = fn_brf(xc, bw, rate_sampling-(bw/2), rate_sampling);
 subplot(712)
 plot(axis_f,abs(fftshift(fft(xc_base))));
 title("Spectrum after LPF");

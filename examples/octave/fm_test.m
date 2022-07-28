@@ -3,11 +3,11 @@ clear all;
 close all;
 
 Ac = 1;
-Am = 1;
+Am = 5;
 Fs = 2000;
-Fc = 20;
+Fc = 50;
 Fm = 2;
-Mi = 3;
+Mi = 2;
 n = [0:1/Fs:1];
 xm = Am * cos(2 * pi * Fm * n);
 xfm = Ac * sin(2 * pi * Fc * n + (Mi * xm));
@@ -17,7 +17,7 @@ xfm_phi_last = [xfm_phi(2:end),0];
 
 xfm_demod = abs(xfm_phi_last - xfm_phi);
 xfm_demod = xfm_demod - mean(xfm_demod);
-xfm_demod = fn_bpf(xfm_demod, 5, floor(Fs/2), Fs);
+xfm_demod = fn_brf(xfm_demod, 5, floor(Fs/2), Fs);
 xfm_demod = xfm_demod ./ max(xfm_demod);
 
 subplot(3,1,1)
