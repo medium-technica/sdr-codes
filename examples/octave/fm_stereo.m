@@ -15,8 +15,8 @@ end
 bw = 200e3;
 decimation = floor(rate_sampling/rate_audio)
 
-decimation_1 = decimation / 12;
-decimation_2 = decimation / 2;
+decimation_1 = decimation / 24;
+decimation_2 = decimation / 1;
 
 fid = fopen (filename, "r");
 val = fread(fid,"int16");
@@ -73,6 +73,6 @@ title("Phase values after Gain Adjustment");
 fms_l = (fms_demod + fm_demod) / 2;
 fms_r = -(fms_demod - fm_demod) / 2;
 fms_2ch = [fms_l, fms_r];
-player = audioplayer(fms_2ch, rate_audio);
+player = audioplayer(fm_demod, rate_audio);
 play (player);
 
