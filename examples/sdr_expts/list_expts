@@ -1,0 +1,2 @@
+1. Audio signal generation in PC speaker at user defined frequency components, amplitude & duration
+	1.1. Output as stdio and pipe to audio driver using command line.

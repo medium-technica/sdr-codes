@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Not titled yet
+# Title: FM Stereo Test
 # GNU Radio version: 3.9.5.0
 
 from distutils.version import StrictVersion
@@ -42,12 +42,12 @@ import math
 
 from gnuradio import qtgui
 
-class sdrtest(gr.top_block, Qt.QWidget):
+class fmsteroetest(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
+        gr.top_block.__init__(self, "FM Stereo Test", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Not titled yet")
+        self.setWindowTitle("FM Stereo Test")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -65,7 +65,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "sdrtest")
+        self.settings = Qt.QSettings("GNU Radio", "fmsteroetest")
 
         try:
             if StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
@@ -89,7 +89,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
         self._lpr_range = Range(0, 1, 0.1, 0.5, 200)
         self._lpr_win = RangeWidget(self._lpr_range, self.set_lpr, "L + R", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._lpr_win)
-        self._lmr_range = Range(0, 1, 0.1, 0.5, 200)
+        self._lmr_range = Range(0, 300, 1, 0.5, 200)
         self._lmr_win = RangeWidget(self._lmr_range, self.set_lmr, "L - R", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._lmr_win)
         self._freq_range = Range(88e6, 107e6, 0.1e6, 91.9e6, 200)
@@ -109,7 +109,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
         self.soapy_rtlsdr_source_0.set_frequency_correction(0, 0)
         self.soapy_rtlsdr_source_0.set_gain(0, 'TUNER', 20)
         self.low_pass_filter_0_0 = filter.fir_filter_fff(
-            1,
+            10,
             firdes.low_pass(
                 1,
                 samp_rate,
@@ -118,7 +118,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
                 window.WIN_BLACKMAN,
                 6.76))
         self.low_pass_filter_0 = filter.fir_filter_fff(
-            1,
+            10,
             firdes.low_pass(
                 1,
                 samp_rate,
@@ -137,7 +137,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
         self.band_pass_filter_0_1 = filter.fir_filter_fff(
             1,
             firdes.band_pass(
-                1,
+                10,
                 samp_rate,
                 23e3,
                 53e3,
@@ -164,7 +164,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
                 1e2,
                 window.WIN_BLACKMAN,
                 6.76))
-        self.audio_sink_0 = audio.sink(250000, '', True)
+        self.audio_sink_0 = audio.sink(25000, '', True)
         self.analog_wfm_rcv_0 = analog.wfm_rcv(
         	quad_rate=samp_rate,
         	audio_decimation=1,
@@ -198,7 +198,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "sdrtest")
+        self.settings = Qt.QSettings("GNU Radio", "fmsteroetest")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -214,7 +214,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
         self.analog_pll_freqdet_cf_0.set_min_freq(2*math.pi / (self.samp_rate/18.5e3))
         self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.samp_rate, 18.5e3, 19.5e3, 1e2, window.WIN_BLACKMAN, 6.76))
         self.band_pass_filter_0_0.set_taps(firdes.band_pass(1, self.samp_rate, 37.5e3, 38.5e3, 1e2, window.WIN_BLACKMAN, 6.76))
-        self.band_pass_filter_0_1.set_taps(firdes.band_pass(1, self.samp_rate, 23e3, 53e3, 1e2, window.WIN_BLACKMAN, 6.76))
+        self.band_pass_filter_0_1.set_taps(firdes.band_pass(10, self.samp_rate, 23e3, 53e3, 1e2, window.WIN_BLACKMAN, 6.76))
         self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 15e3, 1e3, window.WIN_BLACKMAN, 6.76))
         self.low_pass_filter_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 15e3, 1e3, window.WIN_BLACKMAN, 6.76))
         self.soapy_rtlsdr_source_0.set_sample_rate(0, self.samp_rate)
@@ -243,7 +243,7 @@ class sdrtest(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=sdrtest, options=None):
+def main(top_block_cls=fmsteroetest, options=None):
 
     if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
         style = gr.prefs().get_string('qtgui', 'style', 'raster')
