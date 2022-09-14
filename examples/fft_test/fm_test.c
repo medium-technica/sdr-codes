@@ -46,8 +46,8 @@ int main()
  for (int n = 0; n < Fs; n++)
  {
   xm[n] = Am * sin(2 * 3.14 / Fs * Fm * n);
-  xc[n] = Ac * sin(2 * 3.14 / Fs * Fc * n);
-  x[n] = Ac * sin(2 * 3.14 / Fs * Fc * n + (Mi * xm[n]));
+  xc[n] = Ac * cos(2 * 3.14 / Fs * Fc * n);
+  x[n] = Ac * cos(2 * 3.14 / Fs * Fc * n + (Mi * xm[n]));
  }
 
  fft(x, x_fft, Fs);
